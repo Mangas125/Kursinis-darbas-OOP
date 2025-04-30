@@ -1,0 +1,33 @@
+Total available capacity: 1700 MW
+Electricity demand: 900 MW
+Plants activated:
+ - SolarPlant "SunFarm" [500 MW @ 30 EUR/MW]
+ - HydroPlant "RiverPower" [400 MW @ 20 EUR/MW]
+Total supplied: 900 MW
+Total cost: 23000.00 EUR
+Clean Energy: 100.0%
+---
+Total available capacity: 1700 MW
+Cannot fulfill demand. Short by 3300 MW.
+---
+Total available capacity: 3400 MW
+Electricity demand: 1500 MW
+Plants activated:
+ - NuclearPlant "AtomicOne" [1200 MW @ 40 EUR/MW]
+ - WindPlant "WindyHill" [300 MW @ 25 EUR/MW]
+Total supplied: 1500 MW
+Total cost: 55500.00 EUR
+Clean Energy: 20.0%
+---
+Total available capacity: 3400 MW
+Cannot fulfill demand. Short by 600 MW.
+---
+Total available capacity: 3400 MW
+Electricity demand: 450 MW
+Plants activated:
+ - SolarPlant "SunFarm" [500 MW @ 30 EUR/MW]
+Total supplied: 500 MW
+Total cost: 15000.00 EUR
+Clean Energy: 100.0%
+Over the demand by 50 MW.
+---

@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 from itertools import combinations
+import unittest
+import json
 
 class PowerPlant(ABC):
     def __init__(self, name, location, capacity_mw, cost_per_mw, is_clean_energy):
@@ -93,13 +95,15 @@ class PowerPlantManager:
             print(plant.generate_report())
             print("------------------------")
 
-    def fulfill_demand(self, mw_required):
+    def fulfill_demand(self, mw_required, history_file="history.txt"):
         total_available = sum(plant.capacity_mw for plant in self.plants)
-        print(f"Total available capacity: {total_available} MW")
+        output_lines = [f"Total available capacity: {total_available} MW"]
 
         if total_available < mw_required:
             shortage = mw_required - total_available
-            print(f"Cannot fulfill demand. Short by {shortage} MW.")
+            output_lines.append(f"Cannot fulfill demand. Short by {shortage} MW.")
+            self._log_to_file(output_lines, history_file)
+            print("\n".join(output_lines))
             return
 
         best_combination = None
@@ -115,7 +119,9 @@ class PowerPlantManager:
                         best_over = over
 
         if best_combination is None:
-            print("No combination of plants can fulfill the demand.")
+            output_lines.append("No combination of plants can fulfill the demand.")
+            self._log_to_file(output_lines, history_file)
+            print("\n".join(output_lines))
             return
 
         total_supplied = sum(plant.capacity_mw for plant in best_combination)
@@ -127,17 +133,60 @@ class PowerPlantManager:
 
         clean_percentage = (clean_energy_mw / total_supplied) * 100 if total_supplied > 0 else 0
 
-        print(f"Electricity demand: {mw_required} MW")
-        print("Plants activated:")
+        output_lines.append(f"Electricity demand: {mw_required} MW")
+        output_lines.append("Plants activated:")
         for plant in best_combination:
-            print(f" - {plant.__class__.__name__} \"{plant.name}\" [{plant.capacity_mw} MW @ {plant.cost_per_mw} EUR/MW]")
-        print(f"Total supplied: {total_supplied} MW")
-        print(f"Total cost: {total_cost:.2f} EUR")
-        print(f"Clean Energy: {clean_percentage:.1f}%")
+            output_lines.append(f" - {plant.__class__.__name__} \"{plant.name}\" [{plant.capacity_mw} MW @ {plant.cost_per_mw} EUR/MW]")
+        output_lines.append(f"Total supplied: {total_supplied} MW")
+        output_lines.append(f"Total cost: {total_cost:.2f} EUR")
+        output_lines.append(f"Clean Energy: {clean_percentage:.1f}%")
         if total_supplied > mw_required:
-            print(f"Over the demand by {total_supplied - mw_required} MW.")
+            output_lines.append(f"Over the demand by {total_supplied - mw_required} MW.")
 
-# Example usage
+        self._log_to_file(output_lines, history_file)
+        print("\n".join(output_lines))
+
+    def _log_to_file(self, lines, filename):
+        with open(filename, "a") as file:
+            file.write("\n".join(lines) + "\n---\n")
+
+    def show_history(self, filename="history.txt"):
+        try:
+            with open(filename, "r") as file:
+                print(file.read())
+        except FileNotFoundError:
+            print("No history found.")
+
+# Unit Tests
+class TestPowerPlantManager(unittest.TestCase):
+    def setUp(self):
+        self.manager = PowerPlantManager()
+        self.manager.add_plant(SolarPlant("SunFarm", "Spain", 500, 30, True))
+        self.manager.add_plant(CoalPlant("CoalBurner", "Poland", 800, 45, False))
+        self.manager.add_plant(HydroPlant("RiverPower", "Norway", 400, 20, True))
+
+    def test_add_and_remove_plant(self):
+        self.assertEqual(len(self.manager.plants), 3)
+        self.manager.remove_plant("CoalBurner")
+        self.assertEqual(len(self.manager.plants), 2)
+        names = [p.name for p in self.manager.plants]
+        self.assertNotIn("CoalBurner", names)
+
+    def test_fulfill_demand_exact(self):
+        self.manager.fulfill_demand(900)  # should pick 500 + 400
+        active_plants = [p for p in self.manager.plants if p.status == "active"]
+        self.assertEqual(sum(p.capacity_mw for p in active_plants), 900)
+
+    def test_fulfill_demand_not_possible(self):
+        self.manager.fulfill_demand(5000)
+        active_plants = [p for p in self.manager.plants if p.status == "active"]
+        self.assertEqual(len(active_plants), 0)
+
+# Example usage 1
+if __name__ == "__main__":
+    unittest.main(argv=[''], exit=False)
+
+# Example usage 2
 def main():
     manager = PowerPlantManager()
 
@@ -163,7 +212,10 @@ def main():
     print("\n=== Removing CoalBurner ===")
     manager.remove_plant("CoalBurner")
 
-    print("\n=== List after removal ===")
+    print("\n=== Adding SunRise ===")
+    manager.add_plant(PowerPlantFactory.create_plant("solar", "SunRise", "Lithuania", 600, 29, True))
+
+    print("\n=== List after removal and addition===")
     manager.list_plants()
 
 if __name__ == "__main__":
