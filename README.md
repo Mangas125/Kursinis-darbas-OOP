@@ -1,4 +1,4 @@
-# Energetinių jėgainių valdymo sistema
+# Elektros energijos jėgainių valdymo sistema
 
 ## Įvadas
 
@@ -11,7 +11,7 @@
 3. Paleiskite programą su `python` komanda.
 4. Norėdami matyti istoriją, naudokite `show_history()` metodą.
 
-## Naudotos technologijos
+## Programos duomenys
 
 - Kalba: Python 3
 - Objektinis programavimas (OOP)
@@ -105,5 +105,5 @@ Projekto metu sėkmingai pademonstruota:
 
 ## Autorius
 
-- [Tavo vardas, pavardė]
-- Kursas: Objektinis programavimas, 2025
+- Mangirdas Rulis EEF-24
+- Objektinis programavimas, 2025
